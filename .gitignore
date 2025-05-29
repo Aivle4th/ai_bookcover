@@ -1,0 +1,23 @@
+# IDE
+.idea/
+*.iml
+.vscode/
+
+# Java/Spring Boot
+target/
+build/
+*.jar
+*.war
+*.log
+
+# Node.js/React
+node_modules/
+npm-debug.log
+yarn-error.log
+dist/
+.env.local
+.env.*.local
+
+# OS generated files
+.DS_Store
+Thumbs.db
