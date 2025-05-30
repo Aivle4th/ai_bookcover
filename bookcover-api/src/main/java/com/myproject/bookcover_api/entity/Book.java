@@ -30,10 +30,10 @@ public class Book {
 
     private String content;
 
-    private String cover_image_url;
+    private String coverImageUrl;
 
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
-    private LocalDateTime update_at;
+    private LocalDateTime updateAt;
 
 }
