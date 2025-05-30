@@ -349,7 +349,7 @@ function BookDetailPage() {
             {isDeleting ? <CircularProgress size={24} /> : '삭제'}
           </Button>
         </Box>
-      </Box>
+      </Box> //
 
       <Dialog
         open={openDeleteConfirm}
