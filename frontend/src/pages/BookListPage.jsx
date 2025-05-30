@@ -27,11 +27,20 @@ function BookListPage() {
       }
     };
 
-    loadBooks();
+    // 검색어가 변경될 때마다 API를 호출합니다.
+    // 실제 서비스에서는 디바운싱을 적용하는 것이 좋습니다.
+    const timerId = setTimeout(() => { // 간단한 디바운스 효과
+        loadBooks();
+    }, 300); // 300ms 후에 검색 실행
+
+    return () => {
+        clearTimeout(timerId); // 컴포넌트 언마운트 또는 searchTerm 변경 전에 이전 타이머 제거
+    };
+
   }, [searchTerm]); // searchTerm이 바뀔 때마다 useEffect가 다시 실행됩니다.
 
   const handleSearchChange = (event) => {
-    setSearchTerm(event.target.value);
+    setSearchTerm(event.target.value); // 이 부분은 문제가 없어 보입니다.
   };
 
   // 간단한 검색 실행 함수 (실제 검색은 useEffect에서 searchTerm 변경 시 자동 실행)
@@ -76,6 +85,7 @@ function BookListPage() {
           value={searchTerm}
           onChange={handleSearchChange}
           sx={{ mr: 1 }}
+          autoFocus
         />
         {/* <Button variant="outlined" onClick={handleSearchSubmit}>검색</Button> */}
         {/* 검색 버튼 없이 입력 시 바로 반영되도록 useEffect 사용 중 */}

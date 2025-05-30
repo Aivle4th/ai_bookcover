@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PutMapping;    // PutMapping 임�
 import org.springframework.web.bind.annotation.RequestBody;  // RequestBody 임포트
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -18,7 +19,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong; // (선택: 새 책 ID 생성을 위해 간단히 사용)
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Collectors; // (getBooks 검색 기능에서 사용)
 
 @RestController
 @RequestMapping("/api")
@@ -67,11 +69,37 @@ public class BookController {
         return bookList;
     }
 
-    // GET /api/books (도서 목록 조회)
+    // GET /api/books (도서 목록 조회 - 검색 기능 추가)
     @GetMapping("/books")
-    public List<Map<String, Object>> getBooks() {
-        System.out.println("백엔드: /api/books (GET) 호출됨, 다음 데이터를 반환합니다: " + mockBookDatabase);
-        return mockBookDatabase;
+    public List<Map<String, Object>> getBooks(
+            @RequestParam(required = false) String title, // 'title' 검색 파라미터 추가
+            @RequestParam(defaultValue = "0") int page,    // 페이지네이션 파라미터
+            @RequestParam(defaultValue = "10") int size    // 페이지네이션 파라미터
+            // TODO: 실제 페이지네이션 로직은 이 목업 데이터에 적용하기 복잡하므로,
+            //       지금은 모든 데이터를 반환하되 검색 기능만 구현합니다.
+            //       향후 DB 연동 시 JPA의 Pageable을 사용하면 쉽게 구현 가능합니다.
+    ) {
+        System.out.println("백엔드: /api/books (GET) 호출됨. 검색어(title): " + title + ", page: " + page + ", size: " + size);
+
+        List<Map<String, Object>> filteredBooks = new ArrayList<>(mockBookDatabase);
+
+        // 'title' 파라미터가 있으면 제목으로 필터링 (대소문자 구분 없이 포함 여부 확인)
+        if (title != null && !title.isEmpty()) {
+            String lowerCaseSearchTerm = title.toLowerCase();
+            filteredBooks = mockBookDatabase.stream()
+                    .filter(book -> {
+                        String bookTitle = (String) book.get("title");
+                        return bookTitle != null && bookTitle.toLowerCase().contains(lowerCaseSearchTerm);
+                    })
+                    .collect(Collectors.toList());
+            System.out.println("백엔드: 제목 검색 결과 " + filteredBooks.size() + "건");
+        }
+
+        // TODO: 여기에 페이지네이션 로직 추가 (filteredBooks를 page, size에 맞게 자르기)
+        // 지금은 필터링된 전체 목록을 반환합니다.
+
+        System.out.println("백엔드: 최종 반환 데이터: " + filteredBooks);
+        return filteredBooks;
     }
 
     // GET /api/books/{id} (특정 도서 조회)
@@ -153,6 +181,25 @@ public class BookController {
         }
     }
     // --- 👆 특정 ID의 도서 정보를 수정하는 API 추가 완료 👆 ---
+
+    // --- 👇 특정 ID의 도서를 삭제하는 API 추가 👇 ---
+    @DeleteMapping("/books/{id}")
+    public ResponseEntity<Map<String, Object>> deleteBook(@PathVariable Long id) {
+        boolean removed = mockBookDatabase.removeIf(book -> id.equals(book.get("id")));
+
+        if (removed) {
+            System.out.println("백엔드: /api/books/" + id + " (DELETE) 호출됨, 도서 삭제 완료");
+            Map<String, Object> successResponse = new HashMap<>();
+            successResponse.put("message", "도서(ID: " + id + ")가 성공적으로 삭제되었습니다.");
+            return ResponseEntity.ok(successResponse); // 성공 메시지와 함께 200 OK 응답
+        } else {
+            System.out.println("백엔드: /api/books/" + id + " (DELETE) 호출됨, ID " + id + "에 해당하는 도서를 찾을 수 없어 삭제 실패");
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", "ID " + id + "에 해당하는 도서를 찾을 수 없어 삭제할 수 없습니다.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        }
+    }
+    // --- 👆 특정 ID의 도서를 삭제하는 API 추가 완료 👆 ---
 
     // (향후 AI 표지 생성, 도서 삭제 API 등을 여기에 추가할 수 있습니다.)
 }
