@@ -26,14 +26,14 @@ public class Book {
     private String content;
 
     @Column(name = "cover_image_url",columnDefinition = "TEXT")
-    private String cover_image_url;
+    private String coverImageUrl;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     @UpdateTimestamp
-    @Column(name = "update_at")
-    private LocalDateTime update_at;
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
 }

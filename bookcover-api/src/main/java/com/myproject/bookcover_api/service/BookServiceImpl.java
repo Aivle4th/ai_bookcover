@@ -55,7 +55,7 @@ public class BookServiceImpl implements BookService{
     public BookDto updateBookImg(Long id, BookDto.BookUpdateImgUrl dto) {
         Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Book not found with id: " + id));
-        book.setCover_image_url(dto.getCover_image_url());
+        book.setCoverImageUrl(dto.getCover_image_url());
         return toBookDto(book);
     }
 

@@ -15,9 +15,9 @@ public class BookDto {
     private String title;
     private String author;
     private String content;
-    private String cover_image_url;
-    private LocalDateTime created_at;
-    private LocalDateTime update_at;
+    private String coverImageUrl;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     public static BookDto toBookDto(Book book){
         BookDto dto = new BookDto();
@@ -25,9 +25,9 @@ public class BookDto {
         dto.setTitle(book.getTitle());
         dto.setAuthor(book.getAuthor());
         dto.setContent(book.getContent());
-        dto.setCover_image_url(book.getCover_image_url());
-        dto.setCreated_at(book.getCreated_at());
-        dto.setUpdate_at(book.getUpdate_at());
+        dto.setCoverImageUrl(book.getCoverImageUrl());
+        dto.setCreatedAt(book.getCreatedAt());
+        dto.setUpdatedAt(book.getUpdatedAt());
         return dto;
     }
 
@@ -71,8 +71,8 @@ public class BookDto {
         private String title;
         private String author;
         private String content;
-        private String cover_image_url;
-        private String created_at;
+        private String coverImageUrl;
+        private LocalDateTime createdAt;
 
         public static BookResponse toBookResponse(Book book) {
             BookResponse response = new BookResponse();
@@ -80,8 +80,8 @@ public class BookDto {
             response.setTitle(book.getTitle());
             response.setAuthor(book.getAuthor());
             response.setContent(book.getContent());
-            response.setCover_image_url(book.getCover_image_url());
-            response.setCreated_at(book.getCreated_at().toString());
+            response.setCoverImageUrl(book.getCoverImageUrl());
+            response.setCreatedAt(book.getCreatedAt());
             return response;
         }
     }
