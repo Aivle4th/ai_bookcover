@@ -106,3 +106,19 @@ export const generateCover = async (id, promptData) => {
     throw error;
   }
 };
+
+
+// --- 👇 생성된 표지 이미지 URL을 백엔드에 업데이트하는 함수 추가 👇 ---
+export const updateBookCoverUrl = async (id, coverImageUrl) => {
+  try {
+    const response = await apiClient.put(`/books/${id}/cover-url`, { coverImageUrl });
+    return response.data; // 성공 시 백엔드에서 반환하는 업데이트된 도서 정보
+  } catch (error) {
+    console.error(`ID가 ${id}인 도서의 표지 URL 업데이트 중 오류 발생:`, error);
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw error;
+  }
+};
+// --- 👆 생성된 표지 이미지 URL을 백엔드에 업데이트하는 함수 추가 완료 👆 ---
