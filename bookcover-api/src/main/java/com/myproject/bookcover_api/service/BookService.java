@@ -10,7 +10,7 @@ import java.util.List;
 public interface BookService {
 
     //도서 등록하는 기능이에요
-    Book createBook(BookDTO.createBook book);
+    BookDTO.getBook createBook(BookDTO.createBook book);
 
     //도서를 목록으로 조회하는 기능이에요, 모든 Book 객체를 list에 담에서 한번에 보내줄거에요
     List<Book> getBookList();

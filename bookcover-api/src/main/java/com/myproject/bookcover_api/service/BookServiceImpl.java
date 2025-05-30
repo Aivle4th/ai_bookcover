@@ -31,7 +31,8 @@ public class BookServiceImpl implements BookService {
         book1.setContent(book.getContent());
         book1.setAuthor(book.getAuthor());
 
-        bookReposittory.save(book1);
+        Book book2 = bookReposittory.save(book1);
+        Long id = book2.getId();
         return getBookById(id);
     }
 
