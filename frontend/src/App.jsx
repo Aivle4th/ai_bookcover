@@ -1,8 +1,8 @@
-import React from 'react'; // useState, useEffect는 PlaceholderHomePage에서 사용하므로 여기서는 제거해도 됩니다.
-// import axios from 'axios'; // API 호출은 각 페이지나 서비스에서 하므로 App.jsx에서는 제거해도 됩니다.
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './layouts/Layout';
-import BookListPage from './pages/BookListPage'; // BookListPage 임포트
+import BookListPage from './pages/BookListPage';
+import BookCreatePage from './pages/BookCreatePage'; // BookCreatePage 임포트
 
 // 임시 테스트용 컴포넌트 (이전에 백엔드 통신 테스트용으로 사용)
 function PlaceholderHomePage() {
@@ -28,8 +28,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<PlaceholderHomePage />} />
-          <Route path="books" element={<BookListPage />} /> {/* 도서 목록 페이지 라우트 추가 */}
-          {/* <Route path="books/new" element={<BookCreatePage />} /> */} {/* 새 도서 등록 페이지 (나중에 추가) */}
+          <Route path="books" element={<BookListPage />} />
+          <Route path="books/new" element={<BookCreatePage />} /> {/* 새 도서 등록 페이지 라우트 추가 */}
           {/* <Route path="books/:id" element={<BookDetailPage />} /> */} {/* 도서 상세 페이지 (나중에 추가) */}
         </Route>
       </Routes>

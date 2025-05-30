@@ -25,3 +25,20 @@ export const fetchBooks = async (page = 0, size = 10, searchTerm = '') => {
     throw error; // 오류를 다시 던져서 호출한 쪽에서 처리할 수 있도록 함
   }
 };
+
+// --- 👇 새 도서 등록 함수 추가 👇 ---
+export const createBook = async (bookData) => {
+  try {
+    // bookData 객체에는 { title: '...', author: '...', content: '...' } 정보가 들어옵니다.
+    const response = await apiClient.post('/books', bookData);
+    return response.data; // 성공 시 백엔드에서 반환하는 생성된 도서 정보
+  } catch (error) {
+    console.error('새 도서 등록 중 오류 발생:', error);
+    // 오류 객체에 response가 있고, 그 안에 data가 있으면 서버가 보낸 오류 메시지를 사용할 수 있습니다.
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw error; // 그 외의 경우 원래 오류를 다시 던짐
+  }
+};
+// --- 👆 새 도서 등록 함수 추가 완료 👆 ---
