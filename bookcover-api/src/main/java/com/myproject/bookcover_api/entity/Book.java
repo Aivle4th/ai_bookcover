@@ -1,21 +1,16 @@
 package com.myproject.bookcover_api.entity;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import jakarta.persistence.*;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-@Getter
-@Setter
+@Data
 public class Book {
 
     // 깃 연동 시험용으로 하나 넣어봤습니다.
@@ -24,16 +19,24 @@ public class Book {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name="title",nullable = false, length = 200)
     private String title;
 
+    @Column(name="author",nullable = false, length = 100)
     private String author;
 
+    @Column(name="content",nullable = false, columnDefinition = "TEXT")
     private String content;
 
+    @Column(name = "cover_image_url",columnDefinition = "TEXT")
     private String cover_image_url;
 
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private LocalDateTime created_at;
 
+    @UpdateTimestamp
+    @Column(name = "update_at")
     private LocalDateTime update_at;
 
 }
