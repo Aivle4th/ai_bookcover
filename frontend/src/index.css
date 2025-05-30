@@ -1,5 +1,7 @@
+/* src/index.css */
+
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Poppins', sans-serif;  /* system-ui…에서 Poppins로 교체 */
   line-height: 1.5;
   font-weight: 400;
 
