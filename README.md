@@ -108,7 +108,8 @@
 
 ---
 
-## 📂 폴더 구조 (간략 개요) - 선택 사항
+## 📂 폴더 구조 (간략 개요)
+```bash
 ai_bookcover/
 ├── .git/
 ├── .gitignore
@@ -123,11 +124,12 @@ ai_bookcover/
 ├── layouts/
 ├── pages/
 └── services/
+```
 
 
 ---
 
-## 📅 향후 계획 (To-Do / Future Enhancements) - 선택 사항
+## 📅 향후 계획 (To-Do / Future Enhancements)
 * 실제 OpenAI DALL·E API 연동하여 표지 이미지 생성 기능 구현
 * 사용자 인증 기능 추가
 * 데이터베이스 H2에서 실제 영구 DB(예: MySQL, PostgreSQL)로 변경
