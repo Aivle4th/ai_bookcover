@@ -75,3 +75,34 @@ export const updateBook = async (id, bookData) => {
   }
 };
 // --- 👆 특정 ID의 도서 정보를 수정하는 함수 추가 완료 👆 ---
+
+// --- 👇 특정 ID의 도서를 삭제하는 함수 추가 👇 ---
+export const deleteBook = async (id) => {
+  try {
+    const response = await apiClient.delete(`/books/${id}`);
+    return response.data; // 성공 시 백엔드에서 반환하는 메시지 등
+  } catch (error) {
+    console.error(`ID가 ${id}인 도서 삭제 중 오류 발생:`, error);
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw error;
+  }
+};
+// --- 👆 특정 ID의 도서를 삭제하는 함수 추가 완료 👆 ---
+
+// AI 표지 이미지 생성을 요청하는 함수
+export const generateCover = async (id, promptData) => {
+  // promptData는 { prompt: "사용자 입력 프롬프트" } 형태이거나, null 또는 빈 객체일 수 있습니다.
+  try {
+    const response = await apiClient.post(`/books/${id}/generate-cover`, promptData);
+    return response.data; // 성공 시 백엔드에서 반환하는 업데이트된 도서 정보
+  } catch (error)
+{
+    console.error(`ID가 ${id}인 도서의 표지 생성 중 오류 발생:`, error);
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw error;
+  }
+};
