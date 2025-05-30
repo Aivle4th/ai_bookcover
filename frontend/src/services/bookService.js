@@ -42,3 +42,20 @@ export const createBook = async (bookData) => {
   }
 };
 // --- 👆 새 도서 등록 함수 추가 완료 👆 ---
+
+// --- 👇 특정 ID의 도서 정보를 가져오는 함수 추가 👇 ---
+export const fetchBookById = async (id) => {
+  try {
+    const response = await apiClient.get(`/books/${id}`);
+    return response.data; // 성공 시 백엔드에서 반환하는 특정 도서 정보
+  } catch (error) {
+    console.error(`ID가 ${id}인 도서 정보를 불러오는 중 오류 발생:`, error);
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    } else if (error.response && error.response.status === 404) {
+      throw new Error('해당 도서를 찾을 수 없습니다.');
+    }
+    throw error;
+  }
+};
+// --- 👆 특정 ID의 도서 정보를 가져오는 함수 추가 완료 👆 ---
