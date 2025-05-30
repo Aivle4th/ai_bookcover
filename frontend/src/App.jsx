@@ -1,58 +1,26 @@
-// src/App.jsx
-import React, { useState, useEffect } from 'react'; // useState, useEffect 임포트
-import axios from 'axios'; // axios 임포트
+import React from 'react'; // useState, useEffect는 PlaceholderHomePage에서 사용하므로 여기서는 제거해도 됩니다.
+// import axios from 'axios'; // API 호출은 각 페이지나 서비스에서 하므로 App.jsx에서는 제거해도 됩니다.
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './layouts/Layout';
+import BookListPage from './pages/BookListPage'; // BookListPage 임포트
 
-// 임시 테스트용 컴포넌트
+// 임시 테스트용 컴포넌트 (이전에 백엔드 통신 테스트용으로 사용)
 function PlaceholderHomePage() {
-  const [backendMessage, setBackendMessage] = useState(''); // 백엔드 메시지를 저장할 상태
-  const [loading, setLoading] = useState(true); // 로딩 상태
-  const [error, setError] = useState(''); // 오류 메시지를 저장할 상태
-
-  // 컴포넌트가 처음 렌더링될 때 백엔드 API를 호출합니다.
-  useEffect(() => {
-    axios.get('http://localhost:8080/api/hello') // Spring Boot 백엔드 주소
-      .then(response => {
-        console.log('백엔드로부터 받은 응답:', response.data);
-        setBackendMessage(response.data); // 성공 시 메시지 저장
-        setLoading(false);
-      })
-      .catch(error => {
-        console.error('API 호출 중 오류 발생:', error);
-        // CORS 오류 또는 다른 네트워크 오류일 수 있습니다.
-        if (error.response) {
-          // 서버가 응답했지만 상태 코드가 2xx 범위가 아님
-          setError(`백엔드 API 오류: ${error.response.status} - ${error.response.data}`);
-        } else if (error.request) {
-          // 요청은 이루어졌으나 응답을 받지 못함 (CORS, 네트워크 문제 등)
-          setError('백엔드 서버로부터 응답이 없습니다. 서버가 실행 중이고 CORS 설정이 올바른지 확인하세요.');
-        } else {
-          // 요청 설정 중 문제 발생
-          setError(`API 요청 설정 오류: ${error.message}`);
-        }
-        setLoading(false);
-      });
-  }, []); // 빈 배열을 전달하여 컴포넌트 마운트 시 한 번만 실행되도록 함
-
-  if (loading) {
-    return <p>백엔드에서 데이터를 불러오는 중...</p>;
-  }
-
+  // 이 컴포넌트 내용은 더 이상 백엔드 API 테스트를 직접 하지 않아도 됩니다.
+  // 필요하다면 이전에 작성했던 API 호출 로직을 BookListPage.jsx처럼 실제 페이지로 옮깁니다.
   return (
     <div>
       <h1>메인 페이지에 오신 것을 환영합니다!</h1>
-      <p>이곳에 서비스의 주요 내용이 표시될 예정입니다.</p>
-      <hr />
-      <h2>백엔드 API 테스트:</h2>
-      {error ? (
-        <p style={{ color: 'red' }}>{error}</p>
-      ) : (
-        <p>서버로부터 받은 메시지: <strong>{backendMessage}</strong></p>
-      )}
+      <p>상단 메뉴 또는 버튼을 통해 도서 목록으로 이동하거나 새 도서를 등록할 수 있습니다.</p>
     </div>
   );
 }
+
+// (나중에 만들 새 도서 등록 페이지 컴포넌트 임포트 예시)
+// import BookCreatePage from './pages/BookCreatePage';
+// (나중에 만들 도서 상세 페이지 컴포넌트 임포트 예시)
+// import BookDetailPage from './pages/BookDetailPage';
+
 
 function App() {
   return (
@@ -60,6 +28,9 @@ function App() {
       <Routes>
         <Route path="/" element={<Layout />}>
           <Route index element={<PlaceholderHomePage />} />
+          <Route path="books" element={<BookListPage />} /> {/* 도서 목록 페이지 라우트 추가 */}
+          {/* <Route path="books/new" element={<BookCreatePage />} /> */} {/* 새 도서 등록 페이지 (나중에 추가) */}
+          {/* <Route path="books/:id" element={<BookDetailPage />} /> */} {/* 도서 상세 페이지 (나중에 추가) */}
         </Route>
       </Routes>
     </Router>
