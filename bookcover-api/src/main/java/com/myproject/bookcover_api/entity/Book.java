@@ -12,9 +12,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Data
 public class Book {
-
-    // 깃 연동 시험용으로 하나 넣어봤습니다.
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

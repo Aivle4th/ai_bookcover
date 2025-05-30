@@ -19,8 +19,8 @@ public class BookController {
     }
 
     @PostMapping
-    public ResponseEntity<BookDto.Response> createBook(@RequestBody BookDto.Create request) {
-        BookDto.Response response = bookService.createBook(request);
+    public ResponseEntity<BookDto.BookResponse> createBook(@RequestBody BookDto.BookCreate request) {
+        BookDto.BookResponse response = bookService.createBook(request);
         return ResponseEntity.ok(response);
     }
 
@@ -31,19 +31,19 @@ public class BookController {
     }
 
     @GetMapping
-    public ResponseEntity<List<BookDto.Response>> getAllBooks() {
-        List<BookDto.Response> books = bookService.getAllBooks();
+    public ResponseEntity<List<BookDto.BookResponse>> getAllBooks() {
+        List<BookDto.BookResponse> books = bookService.getAllBooks();
         return ResponseEntity.ok(books);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<BookDto> updateBook(@PathVariable Long id, @RequestBody BookDto.Update request) {
+    public ResponseEntity<BookDto> updateBook(@PathVariable Long id, @RequestBody BookDto.BookUpdate request) {
         BookDto updated = bookService.updateBook(id, request);
         return ResponseEntity.ok(updated);
     }
 
     @PatchMapping("/{id}/generate-cover")
-    public ResponseEntity<BookDto> updateBookImage(@PathVariable Long id, @RequestBody BookDto.UpdateImgUrl request) {
+    public ResponseEntity<BookDto> updateBookImage(@PathVariable Long id, @RequestBody BookDto.BookUpdateImgUrl request) {
         BookDto updated = bookService.updateBookImg(id, request);
         return ResponseEntity.ok(updated);
     }
