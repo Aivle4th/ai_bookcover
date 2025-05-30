@@ -59,3 +59,19 @@ export const fetchBookById = async (id) => {
   }
 };
 // --- 👆 특정 ID의 도서 정보를 가져오는 함수 추가 완료 👆 ---
+
+// --- 👇 특정 ID의 도서 정보를 수정하는 함수 추가 👇 ---
+export const updateBook = async (id, bookData) => {
+  try {
+    // bookData 객체에는 수정할 { title: '...', author: '...', content: '...' } 정보가 들어옵니다.
+    const response = await apiClient.put(`/books/${id}`, bookData);
+    return response.data; // 성공 시 백엔드에서 반환하는 수정된 도서 정보
+  } catch (error) {
+    console.error(`ID가 ${id}인 도서 정보 수정 중 오류 발생:`, error);
+    if (error.response && error.response.data && error.response.data.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw error;
+  }
+};
+// --- 👆 특정 ID의 도서 정보를 수정하는 함수 추가 완료 👆 ---

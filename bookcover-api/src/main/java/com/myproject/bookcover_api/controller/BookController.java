@@ -1,9 +1,13 @@
 package com.myproject.bookcover_api.controller;
 
-import org.springframework.http.HttpStatus; // HttpStatus 임포트
-import org.springframework.http.ResponseEntity; // ResponseEntity 임포트
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping; // (나중에 삭제 API 만들 때 필요할 수 있어서 미리 추가)
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable; // PathVariable 임포트
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;  // (나중에 생성 API 만들 때 필요할 수 있어서 미리 추가)
+import org.springframework.web.bind.annotation.PutMapping;    // PutMapping 임포트
+import org.springframework.web.bind.annotation.RequestBody;  // RequestBody 임포트
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -13,15 +17,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional; // Optional 임포트
+import java.util.Optional;
+import java.util.concurrent.atomic.AtomicLong; // (선택: 새 책 ID 생성을 위해 간단히 사용)
 
 @RestController
 @RequestMapping("/api")
 public class BookController {
 
-    // 가짜 데이터베이스 역할을 할 리스트 (getBooks 메소드에서 사용한 리스트와 동일하게 사용)
+    // 가짜 데이터베이스 역할을 할 리스트
+    // 클래스 멤버로 선언하여 여러 메소드에서 공유하도록 변경
     private List<Map<String, Object>> mockBookDatabase = initializeMockBooks();
+    private AtomicLong idCounter = new AtomicLong(3); // 초기 책 개수에 맞춰 ID 카운터 설정
 
+    // 가짜 도서 데이터 초기화 메소드
     private List<Map<String, Object>> initializeMockBooks() {
         List<Map<String, Object>> bookList = new ArrayList<>();
         DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
@@ -55,33 +63,96 @@ public class BookController {
         book3.put("createdAt", LocalDateTime.now().minusMinutes(30).format(formatter) + "Z");
         book3.put("updatedAt", LocalDateTime.now().format(formatter) + "Z");
         bookList.add(book3);
+
         return bookList;
     }
 
+    // GET /api/books (도서 목록 조회)
     @GetMapping("/books")
     public List<Map<String, Object>> getBooks() {
-        System.out.println("백엔드: /api/books 호출됨, 다음 데이터를 반환합니다: " + mockBookDatabase);
+        System.out.println("백엔드: /api/books (GET) 호출됨, 다음 데이터를 반환합니다: " + mockBookDatabase);
         return mockBookDatabase;
     }
 
-    // --- 👇 특정 ID의 도서 정보를 반환하는 API 추가 👇 ---
+    // GET /api/books/{id} (특정 도서 조회)
     @GetMapping("/books/{id}")
     public ResponseEntity<Map<String, Object>> getBookById(@PathVariable Long id) {
-        // mockBookDatabase에서 id에 해당하는 책을 찾습니다.
         Optional<Map<String, Object>> bookOptional = mockBookDatabase.stream()
                 .filter(book -> id.equals(book.get("id")))
                 .findFirst();
 
         if (bookOptional.isPresent()) {
-            System.out.println("백엔드: /api/books/" + id + " 호출됨, 다음 데이터를 반환합니다: " + bookOptional.get());
-            return ResponseEntity.ok(bookOptional.get()); // 찾았으면 200 OK와 함께 도서 데이터 반환
+            System.out.println("백엔드: /api/books/" + id + " (GET) 호출됨, 다음 데이터를 반환합니다: " + bookOptional.get());
+            return ResponseEntity.ok(bookOptional.get());
         } else {
-            System.out.println("백엔드: /api/books/" + id + " 호출됨, ID " + id + "에 해당하는 도서를 찾을 수 없음");
-            // 못 찾았으면 404 Not Found 응답 (본문은 비우거나 간단한 오류 메시지 포함 가능)
+            System.out.println("백엔드: /api/books/" + id + " (GET) 호출됨, ID " + id + "에 해당하는 도서를 찾을 수 없음");
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("message", "ID " + id + "에 해당하는 도서를 찾을 수 없습니다.");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
     }
-    // --- 👆 특정 ID의 도서 정보를 반환하는 API 추가 완료 👆 ---
+
+    // POST /api/books (새 도서 등록 - 프론트엔드 테스트를 위해 간단히 추가)
+    // 실제로는 BookCreateRequestDto 같은 DTO를 사용하는 것이 좋습니다.
+    @PostMapping("/books")
+    public ResponseEntity<Map<String, Object>> createBook(@RequestBody Map<String, Object> newBookData) {
+        long newId = idCounter.incrementAndGet(); // 새 ID 생성
+        DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
+        Map<String, Object> bookToCreate = new HashMap<>();
+        bookToCreate.put("id", newId);
+        bookToCreate.put("title", newBookData.getOrDefault("title", "제목 없음"));
+        bookToCreate.put("author", newBookData.getOrDefault("author", "작가 미상"));
+        bookToCreate.put("content", newBookData.getOrDefault("content", "내용 없음"));
+        bookToCreate.put("coverImageUrl", newBookData.get("coverImageUrl")); // null일 수 있음
+        bookToCreate.put("createdAt", LocalDateTime.now().format(formatter) + "Z");
+        bookToCreate.put("updatedAt", LocalDateTime.now().format(formatter) + "Z");
+
+        mockBookDatabase.add(bookToCreate); // 가짜 데이터베이스에 추가
+
+        System.out.println("백엔드: /api/books (POST) 호출됨, 다음 도서가 생성되었습니다: " + bookToCreate);
+        return ResponseEntity.status(HttpStatus.CREATED).body(bookToCreate);
+    }
+
+
+    // --- 👇 특정 ID의 도서 정보를 수정하는 API 추가 👇 ---
+    @PutMapping("/books/{id}")
+    public ResponseEntity<Map<String, Object>> updateBook(@PathVariable Long id, @RequestBody Map<String, Object> updatedBookData) {
+        Optional<Map<String, Object>> bookOptional = mockBookDatabase.stream()
+                .filter(book -> id.equals(book.get("id")))
+                .findFirst();
+
+        if (bookOptional.isPresent()) {
+            Map<String, Object> existingBook = bookOptional.get();
+            DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+
+            // 요청 본문에 있는 필드들로 기존 도서 정보를 업데이트합니다.
+            if (updatedBookData.containsKey("title")) {
+                existingBook.put("title", updatedBookData.get("title"));
+            }
+            if (updatedBookData.containsKey("author")) {
+                existingBook.put("author", updatedBookData.get("author"));
+            }
+            if (updatedBookData.containsKey("content")) {
+                existingBook.put("content", updatedBookData.get("content"));
+            }
+            // coverImageUrl도 업데이트 가능하도록 추가 (선택 사항)
+            if (updatedBookData.containsKey("coverImageUrl")) {
+                existingBook.put("coverImageUrl", updatedBookData.get("coverImageUrl"));
+            }
+
+            existingBook.put("updatedAt", LocalDateTime.now().format(formatter) + "Z"); // 수정 시각 업데이트
+
+            System.out.println("백엔드: /api/books/" + id + " (PUT) 호출됨, 다음 데이터로 수정 완료: " + existingBook);
+            return ResponseEntity.ok(existingBook); // 수정된 도서 정보와 함께 200 OK 응답
+        } else {
+            System.out.println("백엔드: /api/books/" + id + " (PUT) 호출됨, ID " + id + "에 해당하는 도서를 찾을 수 없어 수정 실패");
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("message", "ID " + id + "에 해당하는 도서를 찾을 수 없어 수정할 수 없습니다.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        }
+    }
+    // --- 👆 특정 ID의 도서 정보를 수정하는 API 추가 완료 👆 ---
+
+    // (향후 AI 표지 생성, 도서 삭제 API 등을 여기에 추가할 수 있습니다.)
 }

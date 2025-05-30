@@ -51,7 +51,7 @@ function BookDetailPage() {
   }
 
   if (!book) {
-    // 로딩이 끝났는데 book 데이터가 없는 경우 (이론적으로는 error에서 걸러질 수 있음)
+    // 로딩이 끝났는데 book 데이터가 없는 경우
     return (
       <Container>
         <Alert severity="warning" sx={{ mt: 2 }}>도서 정보를 찾을 수 없습니다.</Alert>
@@ -75,7 +75,7 @@ function BookDetailPage() {
                 component="img"
                 image={book.coverImageUrl || "https://via.placeholder.com/300x450.png?text=No+Cover"}
                 alt={book.title}
-                sx={{ width: '100%', maxHeight: 450, objectFit: 'contain' }}
+                sx={{ width: '100%', maxHeight: 450, objectFit: 'contain', border: '1px solid #ddd' }}
               />
             </Grid>
             <Grid item xs={12} md={8}>
@@ -83,7 +83,7 @@ function BookDetailPage() {
                 {book.title}
               </Typography>
               <Typography variant="h6" color="text.secondary" gutterBottom>
-                작가: {book.author}
+                작가: {book.author || "정보 없음"}
               </Typography>
               <Typography variant="body2" color="text.secondary" gutterBottom>
                 등록일: {book.createdAt ? new Date(book.createdAt).toLocaleDateString() : 'N/A'}
@@ -91,20 +91,25 @@ function BookDetailPage() {
               <Typography variant="body2" color="text.secondary" gutterBottom sx={{ mb: 2 }}>
                 수정일: {book.updatedAt ? new Date(book.updatedAt).toLocaleDateString() : 'N/A'}
               </Typography>
-              <Typography variant="body1" paragraph sx={{ whiteSpace: 'pre-wrap' }}>
-                {book.content}
+              <Typography variant="body1" paragraph sx={{ whiteSpace: 'pre-wrap', maxHeight: '300px', overflowY: 'auto', border: '1px solid #eee', p:1 }}>
+                {book.content || "내용 없음"}
               </Typography>
             </Grid>
           </Grid>
         </Paper>
         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
-          {/* 향후 수정, 삭제, AI 표지 생성 버튼 추가 위치 */}
-          {/* <Button variant="contained" color="primary" onClick={() => navigate(`/books/edit/${book.id}`)}> 
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => navigate(`/books/edit/${book.id}`)} // 수정 페이지로 이동
+          >
             수정
           </Button>
+          {/* // 향후 추가될 삭제 버튼 예시
           <Button variant="outlined" color="error">
             삭제
           </Button>
+          // 향후 추가될 AI 표지 생성 버튼 예시
           <Button variant="contained" color="secondary">
             AI 표지 생성
           </Button> 
@@ -113,6 +118,7 @@ function BookDetailPage() {
       </Box>
     </Container>
   );
+  // --- 👆 여기까지가 return 문과 그 안의 JSX 내용입니다. ---
 }
 
 export default BookDetailPage;

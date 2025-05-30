@@ -3,7 +3,8 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Layout from './layouts/Layout';
 import BookListPage from './pages/BookListPage';
 import BookCreatePage from './pages/BookCreatePage';
-import BookDetailPage from './pages/BookDetailPage'; // BookDetailPage 임포트
+import BookDetailPage from './pages/BookDetailPage';
+import BookEditPage from './pages/BookEditPage'; // BookEditPage 임포트
 
 // 임시 테스트용 컴포넌트 (이전에 백엔드 통신 테스트용으로 사용)
 function PlaceholderHomePage() {
@@ -31,7 +32,8 @@ function App() {
           <Route index element={<PlaceholderHomePage />} />
           <Route path="books" element={<BookListPage />} />
           <Route path="books/new" element={<BookCreatePage />} />
-          <Route path="books/:id" element={<BookDetailPage />} /> {/* 도서 상세 페이지 라우트 추가 */}
+          <Route path="books/:id" element={<BookDetailPage />} />
+          <Route path="books/edit/:id" element={<BookEditPage />} /> {/* 도서 수정 페이지 라우트 추가 */}
         </Route>
       </Routes>
     </Router>
