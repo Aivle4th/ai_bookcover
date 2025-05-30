@@ -12,7 +12,7 @@ function BookDetailPage() {
 
   useEffect(() => {
     const loadBookDetails = async () => {
-      if (!id) return; // id가 없으면 실행하지 않음
+      if (!id) return; // id가 없으면 실행하지 않음 응응
 
       setLoading(true);
       setError('');
