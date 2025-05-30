@@ -88,7 +88,7 @@ function BookListPage() {
           autoFocus
         />
         {/* <Button variant="outlined" onClick={handleSearchSubmit}>검색</Button> */}
-        {/* 검색 버튼 없이 입력 시 바로 반영되도록 useEffect 사용 중 */}
+        {/* 검색 버튼 없이 입력 시 바로 반영되도록 useEffect 사용 주우웅 */}
       </Box>
 
       {books.length === 0 && !loading ? (
