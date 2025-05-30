@@ -1,7 +1,23 @@
+// src/pages/BookDetailPage.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, Link as RouterLink, useNavigate } from 'react-router-dom';
-import { Container, Typography, Box, CircularProgress, Alert, Button, Paper, Grid, CardMedia } from '@mui/material';
-import { fetchBookById } from '../services/bookService';
+import { 
+    Container, 
+    Typography, 
+    Box, 
+    CircularProgress, 
+    Alert, 
+    Button, 
+    Paper, 
+    Grid, 
+    CardMedia,
+    Dialog,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle
+} from '@mui/material';
+import { fetchBookById, deleteBook } from '../services/bookService';
 
 function BookDetailPage() {
   const { id } = useParams(); // URL 경로에서 :id 부분을 가져옵니다.
@@ -9,11 +25,16 @@ function BookDetailPage() {
   const [book, setBook] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false); // 삭제 진행 중 상태
+  const [openDeleteConfirm, setOpenDeleteConfirm] = useState(false); // 삭제 확인 대화상자 표시 여부
 
   useEffect(() => {
     const loadBookDetails = async () => {
-      if (!id) return; // id가 없으면 실행하지 않음 응응
-
+      if (!id) {
+        setError('잘못된 도서 ID입니다.');
+        setLoading(false);
+        return;
+      }
       setLoading(true);
       setError('');
       try {
@@ -30,6 +51,33 @@ function BookDetailPage() {
     loadBookDetails();
   }, [id]); // id 값이 변경될 때마다 useEffect를 다시 실행
 
+  const handleDeleteClick = () => {
+    setOpenDeleteConfirm(true); // 삭제 확인 대화상자 열기
+  };
+
+  const handleCloseDeleteConfirm = () => {
+    if (!isDeleting) { // 삭제 중이 아닐 때만 닫기 허용
+        setOpenDeleteConfirm(false); // 삭제 확인 대화상자 닫기
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    setOpenDeleteConfirm(false); // 대화상자 먼저 닫기
+    setIsDeleting(true);
+    setError('');
+    try {
+      await deleteBook(id);
+      alert('도서가 성공적으로 삭제되었습니다.'); // 간단한 알림
+      navigate('/books'); // 삭제 성공 시 도서 목록 페이지로 이동
+    } catch (err) {
+      setError(err.message || `ID가 ${id}인 도서 삭제에 실패했습니다.`);
+      console.error(err);
+      setIsDeleting(false); // 에러 발생 시 삭제 중 상태 해제
+    }
+    // 성공 시에는 페이지 이동하므로 setIsDeleting(false)를 굳이 호출 안 해도 되지만,
+    // 만약 페이지 이동 로직이 없다면 여기서도 호출 필요
+  };
+
   if (loading) {
     return (
       <Container sx={{ textAlign: 'center', mt: 5 }}>
@@ -39,7 +87,7 @@ function BookDetailPage() {
     );
   }
 
-  if (error) {
+  if (error && !book) { // 초기 로딩 시 에러가 발생했고, book 데이터가 없을 때
     return (
       <Container>
         <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>
@@ -50,17 +98,19 @@ function BookDetailPage() {
     );
   }
 
-  if (!book) {
-    // 로딩이 끝났는데 book 데이터가 없는 경우
+  if (!book && !loading) { // 로딩이 끝났는데 book 데이터가 없는 경우 (404 등)
     return (
       <Container>
-        <Alert severity="warning" sx={{ mt: 2 }}>도서 정보를 찾을 수 없습니다.</Alert>
+        <Alert severity="warning" sx={{ mt: 2 }}>요청하신 도서 정보를 찾을 수 없습니다.</Alert>
         <Button component={RouterLink} to="/books" variant="outlined" sx={{ mt: 2 }}>
           목록으로 돌아가기
         </Button>
       </Container>
     );
   }
+
+  // book 객체가 아직 null이면 (위의 조건들에서 걸러지지 않은 매우 드문 경우) 렌더링하지 않음
+  if (!book) return null;
 
   return (
     <Container maxWidth="md">
@@ -97,28 +147,60 @@ function BookDetailPage() {
             </Grid>
           </Grid>
         </Paper>
+
+        {error && <Alert severity="error" sx={{ mt: 2 }}>{error}</Alert>} {/* 삭제 시 발생하는 에러 표시용 */}
+
         <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
           <Button
             variant="contained"
             color="primary"
-            onClick={() => navigate(`/books/edit/${book.id}`)} // 수정 페이지로 이동
+            onClick={() => navigate(`/books/edit/${book.id}`)}
+            disabled={isDeleting} // 삭제 중일 때 수정 버튼도 비활성화
           >
             수정
           </Button>
-          {/* // 향후 추가될 삭제 버튼 예시
-          <Button variant="outlined" color="error">
-            삭제
+          <Button
+            variant="outlined"
+            color="error"
+            onClick={handleDeleteClick}
+            disabled={isDeleting}
+          >
+            {isDeleting ? <CircularProgress size={24} /> : '삭제'}
           </Button>
-          // 향후 추가될 AI 표지 생성 버튼 예시
+          {/* // 향후 추가될 AI 표지 생성 버튼 예시
           <Button variant="contained" color="secondary">
             AI 표지 생성
           </Button> 
           */}
         </Box>
       </Box>
+
+      {/* 삭제 확인 대화상자 */}
+      <Dialog
+        open={openDeleteConfirm}
+        onClose={handleCloseDeleteConfirm}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"도서 삭제 확인"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            정말로 "{book.title}" 도서를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteConfirm} color="primary" disabled={isDeleting}>
+            취소
+          </Button>
+          <Button onClick={handleConfirmDelete} color="error" autoFocus disabled={isDeleting}>
+            {isDeleting ? <CircularProgress size={24} /> : '삭제 확인'}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
-  // --- 👆 여기까지가 return 문과 그 안의 JSX 내용입니다. ---
 }
 
 export default BookDetailPage;
