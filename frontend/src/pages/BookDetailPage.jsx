@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 // updateBookCoverUrl을 bookService에서 가져옵니다. generateCover는 이제 사용하지 않습니다 (OpenAI 직접 호출).
 import { fetchBookById, deleteBook, updateBookCoverUrl } from '../services/bookService';
+import defaultCoverImage from '../assets/book.png'; // 👈 로컬 이미지 import 추가
 
 // DALL-E 모델 옵션 (실제 지원 모델은 OpenAI 문서 확인 필요)
 const dallEModels = [
@@ -156,7 +157,10 @@ function BookDetailPage() {
       console.log('OpenAI로부터 받은 이미지 URL:', receivedImageUrl);
 
       const updatedBookFromBackend = await updateBookCoverUrl(book.id, receivedImageUrl);
-      setBook(updatedBookFromBackend);
+      // --- 👇 바로 이 부분입니다! 👇 ---
+      console.log('백엔드로부터 받은 업데이트된 책 정보:', updatedBookFromBackend); 
+      setBook(updatedBookFromBackend); // 프론트엔드 UI에 새 표지 이미지 및 정보 즉시 반영
+      // --- 👆 여기까지 👆 ---
       alert('새로운 AI 표지가 성공적으로 생성되고 저장되었습니다!');
 
     } catch (err) {
@@ -212,10 +216,14 @@ function BookDetailPage() {
               <Typography variant="h6" gutterBottom>표지 이미지</Typography>
               <CardMedia
                 component="img"
-                image={book.coverImageUrl || "https://via.placeholder.com/300x450.png?text=No+Cover"}
+                image={
+                  book.coverImageUrl && book.coverImageUrl.startsWith('https://') // OpenAI URL이 유효한지 간단히 확인
+                  ? book.coverImageUrl // OpenAI에서 받은 URL 사용
+                  : defaultCoverImage
+                }
                 alt={book.title}
                 sx={{ width: '100%', maxHeight: 450, objectFit: 'contain', border: '1px solid #ddd', mb: 2 }}
-              />
+              /> 
               
               <Typography variant="subtitle1" gutterBottom sx={{mt: 2}}>AI 표지 생성 도구</Typography>
               <TextField

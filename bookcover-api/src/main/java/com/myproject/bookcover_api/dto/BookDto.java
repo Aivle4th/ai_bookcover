@@ -56,12 +56,14 @@ public class BookDto {
         private String author;
         private String content;
     }
+    // --- 👇 이 부분 수정 ---
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class BookUpdateImgUrl {
-        private String cover_image_url;
+        private String coverImageUrl; // snake_case에서 camelCase로 변경
     }
+    // --- 👆 수정 완료 ---
 
     @Data
     @NoArgsConstructor

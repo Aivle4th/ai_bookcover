@@ -1,17 +1,22 @@
 import React from 'react';
 import { Card, CardContent, CardMedia, Typography, Button, CardActions } from '@mui/material';
 import { Link } from 'react-router-dom'; // 상세 페이지로 이동하기 위해
+import defaultCoverImage from '../assets/book.png'; // 👈 로컬 이미지 import 추가
 
 // book 객체를 props로 받아서 정보를 표시합니다.
 function BookCard({ book }) {
   return (
     <Card sx={{ maxWidth: 345, mb: 2, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
-      <CardMedia
+      <CardMedia 
         component="img"
         height="140"
         // 실제 표지 이미지가 있다면 book.coverImageUrl을 사용하고, 없다면 기본 이미지 표시
-        image={book.coverImageUrl || "https://via.placeholder.com/345x140.png?text=No+Cover"}
+        image={book.coverImageUrl || defaultCoverImage} // 👈 이 부분 수정
         alt={book.title}
+        onError={(e) => { // 이미지 로드 실패 시 대체 이미지 설정
+            console.warn(`이미지 로드 실패: ${e.target.src}. 기본 이미지로 대체합니다.`);
+            e.target.src = defaultCoverImage;
+        }}
       />
       <CardContent>
         <Typography gutterBottom variant="h5" component="div">
