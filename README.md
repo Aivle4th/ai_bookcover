@@ -148,7 +148,8 @@ ai_bookcover/
 * **`Book` 엔티티 클래스 정의:**
     * **역할:** 도서 정보를 데이터베이스 테이블과 매핑하는 클래스입니다.
     * **소스 코드:** `Book.java` 
-```public class Book {
+```java
+public class Book {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -174,14 +175,13 @@ ai_bookcover/
     private LocalDateTime updatedAt;
 
 }
-
 ```
     * **세부 내용:** `id`, `title`, `author`, `content`, `coverImageUrl`, `createdAt`, `updatedAt` 필드를 정의합니다. JPA 어노테이션 (`@Entity`, `@Id`, `@GeneratedValue`, `@Column`, `@CreationTimestamp`, `@UpdateTimestamp`) 및 Lombok (`@Data`, `@AllArgsConstructor`, `@NoArgsConstructor`)을 활용합니다.
 
 * **`BookRepository` 인터페이스 정의 (Spring Data JPA):**
     * **역할:** 데이터베이스와의 CRUD 작업을 위한 인터페이스입니다.
     * **소스 코드:** `BookRepository.java` 
-```
+```java
 public interface BookRepository extends JpaRepository<Book, Long> {
     // JpaRepository를 상속받음으로써 save(), findById(), findAll(), deleteById() 등
     // 기본적인 CRUD 메소드들이 자동으로 제공됩니다.
@@ -192,7 +192,7 @@ public interface BookRepository extends JpaRepository<Book, Long> {
 * **`BookService` 인터페이스 및 `BookServiceImpl` 구현 클래스:**
     * **역할:** 도서 관리 관련 비즈니스 로직을 처리합니다.
     * **소스 코드:**
-```
+```java
 public interface BookService {
     BookDto.BookResponse createBook(BookDto.BookCreate dto);
     BookDto getBookById(Long id);
@@ -207,7 +207,7 @@ public interface BookService {
 * **`BookController`:**
     * **역할:** HTTP 요청을 받아 해당 비즈니스 로직(Service)으로 연결하고 결과를 응답합니다.
     * **소스 코드:** `BookController.java` 
-```
+```java
 public class BookController {
 
     private final BookService bookService;
@@ -237,7 +237,7 @@ public class BookController {
 * **DTO (Data Transfer Object) 정의:**
     * **역할:** 계층 간 데이터 전송을 위한 객체로, API 요청/응답 본문에 사용됩니다.
     * **소스 코드:** `BookDto.java` 
-```
+```java
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
