@@ -28,7 +28,7 @@ public class Book {
     @Column(name = "cover_image_url",columnDefinition = "TEXT")
     private String coverImageUrl;
 
-    @CreationTimestamp
+    @CreationTimestamp // 엔터티 생성 및 수정 시 자동으로 현재 시간 기록
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 

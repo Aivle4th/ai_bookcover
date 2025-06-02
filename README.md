@@ -14,7 +14,6 @@
     * [서기] - 이은정
     * [프론트엔드] - 김남교, 김민석, 이은정
     * [백엔드] - 이현성, 장윤호, 최재민
-    * ...
 
 ---
 
@@ -136,9 +135,215 @@ ai_bookcover/
 ├── pages/
 └── services/
 ```
+---
 
+## ⚙️ 프로젝트 주요 기능 상세 구현 내용
+
+주요 구현 내용과 관련 핵심 소스 코드입니다.
+
+### 1. 도서 CRUD API 개발 (Backend)
+
+도서 정보의 생성(Create), 조회(Read), 수정(Update), 삭제(Delete) 기능을 위한 백엔드 API 구현 내용입니다.
+
+* **`Book` 엔티티 클래스 정의:**
+    * **역할:** 도서 정보를 데이터베이스 테이블과 매핑하는 클래스입니다.
+    * **소스 코드:** `Book.java` 
+```public class Book {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name="title",nullable = false, length = 200)
+    private String title;
+
+    @Column(name="author",nullable = false, length = 100)
+    private String author;
+
+    @Column(name="content",nullable = false, columnDefinition = "TEXT")
+    private String content;
+
+    @Column(name = "cover_image_url",columnDefinition = "TEXT")
+    private String coverImageUrl;
+
+    @CreationTimestamp // 엔터티 생성 및 수정 시 자동으로 현재 시간 기록
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+}
+
+        ```
+    * **세부 내용:** `id`, `title`, `author`, `content`, `coverImageUrl`, `createdAt`, `updatedAt` 필드를 정의합니다. JPA 어노테이션 (`@Entity`, `@Id`, `@GeneratedValue`, `@Column`, `@CreationTimestamp`, `@UpdateTimestamp`) 및 Lombok (`@Data`, `@AllArgsConstructor`, `@NoArgsConstructor`)을 활용합니다.
+
+* **`BookRepository` 인터페이스 정의 (Spring Data JPA):**
+    * **역할:** 데이터베이스와의 CRUD 작업을 위한 인터페이스입니다.
+    * **소스 코드:** `BookRepository.java` 
+        ```
+public interface BookRepository extends JpaRepository<Book, Long> {
+    // JpaRepository를 상속받음으로써 save(), findById(), findAll(), deleteById() 등
+    // 기본적인 CRUD 메소드들이 자동으로 제공됩니다.
+}
+        ```
+    * **세부 내용:** `JpaRepository<Book, Long>` 상속을 통해 기본적인 DB 작업 메소드를 자동으로 제공합니다.
+
+* **`BookService` 인터페이스 및 `BookServiceImpl` 구현 클래스:**
+    * **역할:** 도서 관리 관련 비즈니스 로직을 처리합니다.
+    * **소스 코드:**
+        ```
+public interface BookService {
+    BookDto.BookResponse createBook(BookDto.BookCreate dto);
+    BookDto getBookById(Long id);
+    List<BookDto.BookResponse> getAllBooks();
+    BookDto updateBook(Long id, BookDto.BookUpdate dto);
+    void deleteBook(Long id);
+    BookDto updateBookImg(Long id, BookDto.BookUpdateImgUrl dto);
+}
+        ```
+    * **세부 내용:** CRUD 관련 메소드(도서 생성, 전체/개별 조회, 수정, 삭제)를 정의하고 구현합니다. `BookRepository`를 주입받아 사용합니다.
+
+* **`BookController`:**
+    * **역할:** HTTP 요청을 받아 해당 비즈니스 로직(Service)으로 연결하고 결과를 응답합니다.
+    * **소스 코드:** `BookController.java` 
+        ```
+public class BookController {
+
+    private final BookService bookService;
+
+    public BookController(BookService bookService) {
+        this.bookService = bookService;
+    }
+
+    // 새 도서 등록 (POST /api/books)
+    @PostMapping
+    public ResponseEntity<BookDto.BookResponse> createBook(@RequestBody BookDto.BookCreate request) {
+        BookDto.BookResponse response = bookService.createBook(request);
+        return ResponseEntity.ok(response); // 또는 ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    // 특정 도서 상세 조회 (GET /api/books/{id})
+    @GetMapping("/{id}")
+    public ResponseEntity<BookDto> getBookById(@PathVariable Long id) {
+        BookDto book = bookService.getBookById(id);
+        return ResponseEntity.ok(book);
+    }
+   ...
+}
+        ```
+    * **세부 내용:** `@RestController`, `@RequestMapping("/api/books")`를 사용합니다. 각 CRUD 기능에 대한 `@PostMapping`, `@GetMapping`, `@PutMapping`, `@DeleteMapping`을 매핑하고, `BookService`를 주입하여 사용합니다. `ResponseEntity`를 사용하여 응답을 처리합니다.
+
+* **DTO (Data Transfer Object) 정의:**
+    * **역할:** 계층 간 데이터 전송을 위한 객체로, API 요청/응답 본문에 사용됩니다.
+    * **소스 코드:** `BookDto.java` 
+```
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class BookCreate {
+        private String title;
+        private String author;
+        private String content;
+
+        public static Book toBookEntity(BookCreate dto) {
+            Book book = new Book();
+            book.setTitle(dto.getTitle());
+            book.setAuthor(dto.getAuthor());
+            book.setContent(dto.getContent());
+            return book;
+        }
+    }
+...
+```
+    * **세부 내용:** `BookCreate`, `BookUpdate`, `BookResponse`, `BookUpdateImgUrl` 등 주요 DTO 클래스들을 정의하고 각 필드를 명시합니다.
+
+
+* **Postman 사용 API 단위 테스트:**
+    * **세부 내용:** 주요 CRUD API 엔드포인트에 대한 단위 테스트를 Postman을 사용하여 진행했습니다. 
+
+### 2. 도서 CRUD UI 개발 (Frontend)
+
+사용자가 웹 브라우저를 통해 도서 정보를 관리할 수 있도록 UI를 구현한 내용입니다.
+
+* **도서 목록 페이지 구현:**
+    * **역할:** 등록된 도서들의 목록을 사용자에게 보여주는 페이지입니다.
+    * **주요 파일:** `frontend/src/pages/BookListPage.jsx`
+    * **세부 내용:** `useEffect` 훅을 사용하여 API를 호출하고 도서 목록 데이터를 로드합니다. `useState` 훅으로 목록, 로딩, 오류 상태를 관리합니다. `map()` 함수를 사용하여 각 도서 정보를 `BookCard.jsx` 컴포넌트로 렌더링합니다.
+
+* **API 호출하여 도서 목록 표시 (서비스 모듈):**
+    * **역할:** 백엔드 API와 통신하는 함수들을 모듈화하여 관리합니다.
+    * **주요 파일:** `frontend/src/services/bookService.js`
+    * **세부 내용:** `axios` 인스턴스를 생성하고 `baseURL`을 설정합니다. `fetchBooks()` 함수를 구현하여 도서 목록을 비동기적으로 가져옵니다.
+
+* **검색 기능 UI 및 API 연동:**
+    * **역할:** 도서 목록에서 제목을 기반으로 도서를 검색하는 기능을 제공합니다.
+    * **주요 파일:** `frontend/src/pages/BookListPage.jsx`, `frontend/src/services/bookService.js`
+    * **세부 내용:** MUI `TextField`를 사용하여 검색창 UI를 구현합니다. `useState`로 검색어(`searchTerm`)를 관리하고, `searchTerm` 변경 시 `useEffect`를 통해 `fetchBooks(searchTerm)`를 호출하여 API에 검색어를 전달하고 결과를 반영합니다.
+
+* **새 도서 등록 페이지 구현:**
+    * **역할:** 사용자가 새 도서 정보를 입력하고 등록할 수 있는 페이지입니다.
+    * **주요 파일:** `frontend/src/pages/BookCreatePage.jsx`
+    * **세부 내용:** MUI `TextField`, `Button` 등을 사용하여 입력 폼 UI를 구성합니다. `useState`로 폼 데이터(제목, 작가, 내용)를 관리합니다.
+
+* **폼 입력 값으로 도서 생성 API 호출:**
+    * **역할:** 입력된 도서 정보를 백엔드 API로 전송하여 시스템에 저장합니다.
+    * **주요 파일:** `frontend/src/pages/BookCreatePage.jsx`, `frontend/src/services/bookService.js`
+    * **세부 내용:** 폼 제출 시 `handleSubmit` 함수 내에서 `bookService.createBook(formData)`를 호출합니다. 등록 성공 시 `useNavigate` 훅을 사용하여 목록 페이지로 이동합니다.
+
+* **도서 상세 정보 페이지:**
+    * **역할:** 특정 도서의 상세 정보를 보여주는 페이지입니다.
+    * **주요 파일:** `frontend/src/pages/BookDetailPage.jsx`
+    * **세부 내용:** `useParams` 훅을 사용하여 URL에서 도서 ID를 획득합니다. `useEffect`로 `bookService.fetchBookById(id)`를 호출하여 해당 도서 데이터를 로드합니다. 도서 정보(제목, 작가, 내용, 표지 이미지, 등록일, 수정일 등)를 화면에 표시하고, 수정/삭제 버튼을 제공합니다.
+
+### 3. 백엔드 개발 (AI 표지 생성 API)
+
+도서 정보를 기반으로 AI를 통해 표지 이미지를 생성하고 관리하는 백엔드 기능입니다. (현재 프론트엔드에서 OpenAI 직접 호출 후 백엔드에 URL을 업데이트하는 방식으로 구현 중)
+
+* **표지 이미지 URL 업데이트 API 엔드포인트 추가:**
+    * **역할:** 프론트엔드에서 OpenAI API를 통해 생성된 표지 이미지 URL을 받아 해당 도서 정보에 업데이트합니다.
+    * **소스 코드:** `BookController.java` 
+```
+    @PutMapping("/{id}/cover-url")
+    public ResponseEntity<BookDto> updateBookCoverUrl(@PathVariable Long id, @RequestBody BookDto.BookUpdateImgUrl request) {
+        System.out.println("백엔드: /api/books/" + id + "/cover-url (PUT) 호출됨. 요청 본문: " + request); // 요청 DTO 로그 추가
+        // coverImageUrl 필드가 있는지 확인하려면 request.getCoverImageUrl() 등을 로깅
+        System.out.println("백엔드: 전달받은 coverImageUrl: " + (request != null ? request.getCoverImageUrl() : "null"));
+
+        BookDto updated = bookService.updateBookImg(id, request); // 또는 updateBookCoverUrl
+        System.out.println("백엔드: 서비스에서 반환된 업데이트된 BookDto: " + updated); // 서비스 반환값 로그 추가
+        return ResponseEntity.ok(updated);
+    }
+```
+    * **세부 내용:** `PUT /api/books/{id}/cover-url` 엔드포인트를 정의합니다. `@RequestBody`로 `BookDto.BookUpdateImgUrl` (포함 필드: `coverImageUrl`) DTO를 받아 처리합니다.
+
+
+### 4. 프론트엔드 개발 (AI 표지 생성 UI 및 연동)
+
+사용자가 AI 표지 생성 기능을 이용할 수 있도록 UI를 제공하고 관련 API와 연동합니다.
+
+* **도서 상세 페이지에 "표지 생성" 관련 UI 요소 추가:**
+    * **역할:** 사용자가 AI 표지 생성을 요청하고 관련 옵션을 설정할 수 있는 인터페이스를 제공합니다.
+    * **주요 파일:** `frontend/src/pages/BookDetailPage.jsx`
+    * **세부 내용:** OpenAI API 키 입력 필드 (`TextField type="password"`), 사용자 지정 프롬프트 입력 `TextField`, DALL·E 모델/품질/스타일 선택 `Select` 컴포넌트, "AI 표지 생성 요청" `Button` UI를 구현합니다. `useState`를 사용하여 관련 상태(API 키, 프롬프트, 선택 옵션, 로딩 상태, 오류 메시지)를 관리합니다.
+
+* **버튼 클릭 시 API 호출 로직:**
+    * **역할:** 사용자의 요청에 따라 OpenAI API를 직접 호출하고, 그 결과를 백엔드에 전달하여 저장합니다.
+    * **주요 파일:** `frontend/src/pages/BookDetailPage.jsx` (주요 로직), `frontend/src/services/bookService.js` (`updateBookCoverUrl` 함수)
+    * **세부 내용:**
+        * `handleGenerateCover` 함수: API 키 유효성 검사, 요청 본문(프롬프트, 모델, 옵션)을 구성합니다.
+        * 브라우저 내장 `fetch` API를 사용하여 OpenAI 이미지 생성 API (`https://api.openai.com/v1/images/generations`)를 직접 호출합니다. (요청 헤더에 `Authorization: Bearer ${userApiKey}` 포함)
+        * OpenAI API 응답에서 이미지 URL을 추출합니다.
+        * 추출된 이미지 URL을 사용하여 `bookService.updateBookCoverUrl(bookId, receivedImageUrl)` 함수를 호출하고, 백엔드에 이미지 URL 업데이트를 요청합니다.
+        * 이미지 생성 및 DB 업데이트 과정 동안 사용자에게 로딩 인디케이터를 보여주고, 각 단계별 오류 발생 시 사용자에게 적절한 알림을 제공합니다.
+
+* **반환된 이미지 URL을 화면에 표시:**
+    * **역할:** 새로 생성/업데이트된 표지 이미지를 사용자에게 즉시 보여줍니다.
+    * **주요 파일:** `frontend/src/pages/BookDetailPage.jsx`
+    * **세부 내용:** 백엔드로부터 업데이트된 도서 정보를 받아 `book` 상태를 업데이트하고, `CardMedia` 컴포넌트를 통해 새로운 `coverImageUrl`을 화면에 반영하여 이미지를 갱신합니다.
 
 ---
+
 
 ## 📅 향후 계획 (To-Do / Future Enhancements)
 
