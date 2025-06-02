@@ -41,7 +41,7 @@
 
 ---
 
-## ✨ 주요 기능 (Features Implemented So Far)
+## ✨ 주요 기능 (Features Implemented)
 
 * **도서 관리 (CRUD):**
     * 새 도서 등록 (제목, 작가, 내용 입력)
