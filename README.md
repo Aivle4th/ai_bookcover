@@ -175,24 +175,24 @@ ai_bookcover/
 
 }
 
-        ```
+```
     * **세부 내용:** `id`, `title`, `author`, `content`, `coverImageUrl`, `createdAt`, `updatedAt` 필드를 정의합니다. JPA 어노테이션 (`@Entity`, `@Id`, `@GeneratedValue`, `@Column`, `@CreationTimestamp`, `@UpdateTimestamp`) 및 Lombok (`@Data`, `@AllArgsConstructor`, `@NoArgsConstructor`)을 활용합니다.
 
 * **`BookRepository` 인터페이스 정의 (Spring Data JPA):**
     * **역할:** 데이터베이스와의 CRUD 작업을 위한 인터페이스입니다.
     * **소스 코드:** `BookRepository.java` 
-        ```
+```
 public interface BookRepository extends JpaRepository<Book, Long> {
     // JpaRepository를 상속받음으로써 save(), findById(), findAll(), deleteById() 등
     // 기본적인 CRUD 메소드들이 자동으로 제공됩니다.
 }
-        ```
+```
     * **세부 내용:** `JpaRepository<Book, Long>` 상속을 통해 기본적인 DB 작업 메소드를 자동으로 제공합니다.
 
 * **`BookService` 인터페이스 및 `BookServiceImpl` 구현 클래스:**
     * **역할:** 도서 관리 관련 비즈니스 로직을 처리합니다.
     * **소스 코드:**
-        ```
+```
 public interface BookService {
     BookDto.BookResponse createBook(BookDto.BookCreate dto);
     BookDto getBookById(Long id);
@@ -201,13 +201,13 @@ public interface BookService {
     void deleteBook(Long id);
     BookDto updateBookImg(Long id, BookDto.BookUpdateImgUrl dto);
 }
-        ```
+```
     * **세부 내용:** CRUD 관련 메소드(도서 생성, 전체/개별 조회, 수정, 삭제)를 정의하고 구현합니다. `BookRepository`를 주입받아 사용합니다.
 
 * **`BookController`:**
     * **역할:** HTTP 요청을 받아 해당 비즈니스 로직(Service)으로 연결하고 결과를 응답합니다.
     * **소스 코드:** `BookController.java` 
-        ```
+```
 public class BookController {
 
     private final BookService bookService;
@@ -229,9 +229,9 @@ public class BookController {
         BookDto book = bookService.getBookById(id);
         return ResponseEntity.ok(book);
     }
-   ...
+
 }
-        ```
+```
     * **세부 내용:** `@RestController`, `@RequestMapping("/api/books")`를 사용합니다. 각 CRUD 기능에 대한 `@PostMapping`, `@GetMapping`, `@PutMapping`, `@DeleteMapping`을 매핑하고, `BookService`를 주입하여 사용합니다. `ResponseEntity`를 사용하여 응답을 처리합니다.
 
 * **DTO (Data Transfer Object) 정의:**
@@ -254,7 +254,7 @@ public class BookController {
             return book;
         }
     }
-...
+
 ```
     * **세부 내용:** `BookCreate`, `BookUpdate`, `BookResponse`, `BookUpdateImgUrl` 등 주요 DTO 클래스들을 정의하고 각 필드를 명시합니다.
 
