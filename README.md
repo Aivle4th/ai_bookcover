@@ -147,6 +147,7 @@ ai_bookcover/
 
 * **`Book` 엔티티 클래스 정의:**
     * **역할:** 도서 정보를 데이터베이스 테이블과 매핑하는 클래스입니다.
+    * **세부 내용:** `id`, `title`, `author`, `content`, `coverImageUrl`, `createdAt`, `updatedAt` 필드를 정의합니다. JPA 어노테이션 (`@Entity`, `@Id`, `@GeneratedValue`, `@Column`, `@CreationTimestamp`, `@UpdateTimestamp`) 및 Lombok (`@Data`, `@AllArgsConstructor`, `@NoArgsConstructor`)을 활용합니다.
     * **소스 코드:** `Book.java` 
 ```java
 public class Book {
@@ -176,10 +177,12 @@ public class Book {
 
 }
 ```
-    * **세부 내용:** `id`, `title`, `author`, `content`, `coverImageUrl`, `createdAt`, `updatedAt` 필드를 정의합니다. JPA 어노테이션 (`@Entity`, `@Id`, `@GeneratedValue`, `@Column`, `@CreationTimestamp`, `@UpdateTimestamp`) 및 Lombok (`@Data`, `@AllArgsConstructor`, `@NoArgsConstructor`)을 활용합니다.
+
+    
 
 * **`BookRepository` 인터페이스 정의 (Spring Data JPA):**
     * **역할:** 데이터베이스와의 CRUD 작업을 위한 인터페이스입니다.
+    * **세부 내용:** `JpaRepository<Book, Long>` 상속을 통해 기본적인 DB 작업 메소드를 자동으로 제공합니다.
     * **소스 코드:** `BookRepository.java` 
 ```java
 public interface BookRepository extends JpaRepository<Book, Long> {
@@ -187,10 +190,11 @@ public interface BookRepository extends JpaRepository<Book, Long> {
     // 기본적인 CRUD 메소드들이 자동으로 제공됩니다.
 }
 ```
-    * **세부 내용:** `JpaRepository<Book, Long>` 상속을 통해 기본적인 DB 작업 메소드를 자동으로 제공합니다.
+
 
 * **`BookService` 인터페이스 및 `BookServiceImpl` 구현 클래스:**
     * **역할:** 도서 관리 관련 비즈니스 로직을 처리합니다.
+    * **세부 내용:** CRUD 관련 메소드(도서 생성, 전체/개별 조회, 수정, 삭제)를 정의하고 구현합니다. `BookRepository`를 주입받아 사용합니다.
     * **소스 코드:**
 ```java
 public interface BookService {
@@ -202,10 +206,11 @@ public interface BookService {
     BookDto updateBookImg(Long id, BookDto.BookUpdateImgUrl dto);
 }
 ```
-    * **세부 내용:** CRUD 관련 메소드(도서 생성, 전체/개별 조회, 수정, 삭제)를 정의하고 구현합니다. `BookRepository`를 주입받아 사용합니다.
+
 
 * **`BookController`:**
     * **역할:** HTTP 요청을 받아 해당 비즈니스 로직(Service)으로 연결하고 결과를 응답합니다.
+    * **세부 내용:** `@RestController`, `@RequestMapping("/api/books")`를 사용합니다. 각 CRUD 기능에 대한 `@PostMapping`, `@GetMapping`, `@PutMapping`, `@DeleteMapping`을 매핑하고, `BookService`를 주입하여 사용합니다. `ResponseEntity`를 사용하여 응답을 처리합니다.
     * **소스 코드:** `BookController.java` 
 ```java
 public class BookController {
@@ -232,10 +237,11 @@ public class BookController {
 
 }
 ```
-    * **세부 내용:** `@RestController`, `@RequestMapping("/api/books")`를 사용합니다. 각 CRUD 기능에 대한 `@PostMapping`, `@GetMapping`, `@PutMapping`, `@DeleteMapping`을 매핑하고, `BookService`를 주입하여 사용합니다. `ResponseEntity`를 사용하여 응답을 처리합니다.
+
 
 * **DTO (Data Transfer Object) 정의:**
     * **역할:** 계층 간 데이터 전송을 위한 객체로, API 요청/응답 본문에 사용됩니다.
+    * **세부 내용:** `BookCreate`, `BookUpdate`, `BookResponse`, `BookUpdateImgUrl` 등 주요 DTO 클래스들을 정의하고 각 필드를 명시합니다.
     * **소스 코드:** `BookDto.java` 
 ```java
     @Data
@@ -256,7 +262,7 @@ public class BookController {
     }
 
 ```
-    * **세부 내용:** `BookCreate`, `BookUpdate`, `BookResponse`, `BookUpdateImgUrl` 등 주요 DTO 클래스들을 정의하고 각 필드를 명시합니다.
+
 
 
 * **Postman 사용 API 단위 테스트:**
@@ -303,7 +309,8 @@ public class BookController {
 * **표지 이미지 URL 업데이트 API 엔드포인트 추가:**
     * **역할:** 프론트엔드에서 OpenAI API를 통해 생성된 표지 이미지 URL을 받아 해당 도서 정보에 업데이트합니다.
     * **소스 코드:** `BookController.java` 
-```
+    * **세부 내용:** `PUT /api/books/{id}/cover-url` 엔드포인트를 정의합니다. `@RequestBody`로 `BookDto.BookUpdateImgUrl` (포함 필드: `coverImageUrl`) DTO를 받아 처리합니다.
+```java
     @PutMapping("/{id}/cover-url")
     public ResponseEntity<BookDto> updateBookCoverUrl(@PathVariable Long id, @RequestBody BookDto.BookUpdateImgUrl request) {
         System.out.println("백엔드: /api/books/" + id + "/cover-url (PUT) 호출됨. 요청 본문: " + request); // 요청 DTO 로그 추가
@@ -315,7 +322,6 @@ public class BookController {
         return ResponseEntity.ok(updated);
     }
 ```
-    * **세부 내용:** `PUT /api/books/{id}/cover-url` 엔드포인트를 정의합니다. `@RequestBody`로 `BookDto.BookUpdateImgUrl` (포함 필드: `coverImageUrl`) DTO를 받아 처리합니다.
 
 
 ### 4. 프론트엔드 개발 (AI 표지 생성 UI 및 연동)
